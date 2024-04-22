@@ -1,0 +1,49 @@
+version: "3.3"
+
+services:
+
+  db:
+    restart: always
+    image: postgres:14
+    container_name: pg_fast_api
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    volumes:
+      - ./data:/var/lib/postgresql/data
+      - /var/log/postgresql:/logs
+    networks:
+      - default
+  fastapi:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: always
+    container_name: fastapi
+    ports:
+      - "0.0.0.0:8000:8000"
+    env_file:
+      - .env.example
+    volumes:
+      - /var/log/fastapi_log:/log
+      - ./src/:/usr/src
+    depends_on:
+      - db
+    networks:
+      - default
+
+
+
+
+
+
+
+
+
+networks:
+  default:
+    external: true
+    name: docker-network
